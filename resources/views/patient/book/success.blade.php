@@ -1,0 +1,15 @@
+<x-layouts.dashboard>
+    <div class="text-center" style="margin-top: 15vh;">
+        <svg class="mx-auto mb-4 text-success" style="width: 80px; height: 80px;" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <h2 class="h3 fw-bold">Appointment Booked!</h2>
+        <p class="text-muted">Your appointment has been successfully scheduled.</p>
+        <p class="text-muted small">Redirecting you now...</p>
+    </div>
+    <script>
+        setTimeout(function() {
+            // The 'manage.appointments' route doesn't exist yet, so we'll redirect to the dashboard for now.
+            // We will create this page next.
+            window.location.href = "{{ route('appointments.index') }}";
+        }, 2000); // 2-second delay
+    </script>
+</x-layouts.dashboard>

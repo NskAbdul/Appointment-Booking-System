@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -17,11 +18,11 @@ class User extends Authenticatable
      *
      * @var list<string>
      */
-    protected $fillable = [
-        'name',
-        'email',
-        'password',
-    ];
+   // In app/Models/User.php
+protected $fillable = [
+    'name', 'email', 'password', 'phone_number', 'date_of_birth', 'gender', 'address', 'role',
+    'specialty', 'department', 'experience_years', 'rating', 'license_number', // Add license_number
+];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -44,5 +45,11 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Add this method inside the User class
+    public function getAgeAttribute(): int
+    {
+        return Carbon::parse($this->attributes['date_of_birth'])->age;
     }
 }
