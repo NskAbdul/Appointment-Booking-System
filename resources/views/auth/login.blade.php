@@ -29,6 +29,11 @@
         <div class="form-floating mb-4">
             <input type="password" name="password" class="form-control" id="password" placeholder="Password" required>
             <label for="password">Password</label>
+             @error('password')
+        <div class="invalid-feedback d-block">
+            {{ $message }}
+        </div>
+    @enderror
         </div>
 
         <button type="submit" class="btn btn-primary w-100 py-2">Sign In</button>

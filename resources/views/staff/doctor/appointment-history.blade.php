@@ -1,5 +1,10 @@
 <x-layouts.doctor>
-    <h2 class="h3 fw-bold mb-4">Appointment History</h2>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="h3 fw-bold">Appointment History</h2>
+        <a href="{{ route('doctor.history.export.doctor') }}" class="btn btn-secondary">
+            Export History (PDF)
+        </a>
+    </div>
 
     @forelse ($appointments as $appointment)
         <div class="card p-4">
@@ -25,7 +30,8 @@
                             data-patient-gender="{{ ucfirst($appointment->patient->gender ?? 'N/A') }}"
                             data-patient-phone="{{ $appointment->patient->phone_number ?? 'N/A' }}"
                             data-patient-email="{{ $appointment->patient->email ?? 'N/A' }}"
-                            data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}">
+                            data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}"
+                            data-appointment-reason="{{ $appointment->reason ?? 'Not given' }}">
                         View Patient Details
                     </button>
                 </div>
@@ -47,6 +53,10 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4">
+             <h6 class="mb-3">Reason for Visit</h6>
+            <p id="modal-appointment-reason-history" class="text-muted border p-3 rounded"></p>
+            <hr class="my-4">
+            <h6 class="mb-3">Patient Information</h6>
             <div class="row g-4">
                 <div class="col-6"><div class="info-item"><div class="info-label">Age</div><div id="modal-patient-age" class="info-value"></div></div></div>
                 <div class="col-6"><div class="info-item"><div class="info-label">Gender</div><div id="modal-patient-gender" class="info-value"></div></div></div>
@@ -95,6 +105,7 @@
                 modal.querySelector('#modal-patient-phone').textContent = patientPhone;
                 modal.querySelector('#modal-patient-email').textContent = patientEmail;
                 modal.querySelector('#modal-patient-address').textContent = patientAddress;
+                modal.querySelector('#modal-appointment-reason-history').textContent = button.getAttribute('data-appointment-reason');
             });
         }
     </script>

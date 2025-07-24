@@ -25,28 +25,17 @@ class ProfileController extends Controller
     /**
      * Update the user's profile information.
      */
-   public function update(Request $request): RedirectResponse
+ public function update(ProfileUpdateRequest $request): RedirectResponse
 {
-    // We are combining profile info and custom fields into one update
-    $validatedData = $request->validate([
-        'name' => ['required', 'string', 'max:255'],
-        'email' => ['required', 'string', 'lowercase', 'email', 'max:255', Rule::unique(User::class)->ignore($request->user()->id)],
-        'phone_number' => ['required', 'string', 'max:20'],
-        'date_of_birth' => ['required', 'date'],
-        'gender' => ['required', 'string', 'in:male,female,other'],
-        'address' => ['required', 'string', 'max:500'],
-    ]);
+    $request->user()->fill($request->validated());
 
-    // If the user changes their email, we need to clear the verification status
     if ($request->user()->isDirty('email')) {
         $request->user()->email_verified_at = null;
     }
 
-    // Fill the user model with validated data and save
-    $request->user()->fill($validatedData);
     $request->user()->save();
 
-    return Redirect::route('profile.edit')->with('status', 'profile-updated');
+    return Redirect::route('patient.profile.edit')->with('status', 'profile-updated'); // Corrected
 }
 
     /**

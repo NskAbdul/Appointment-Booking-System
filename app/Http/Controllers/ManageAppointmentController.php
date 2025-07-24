@@ -52,7 +52,11 @@ public function index(Request $request)
     return view('patient.manage-appointments', compact('appointments'));
 }
     // Update an existing appointment
-   public function update(Request $request, Appointment $appointment)
+// In app/Http/Controllers/ManageAppointmentController.php
+
+// In app/Http/Controllers/ManageAppointmentController.php
+
+public function update(Request $request, Appointment $appointment)
 {
     // Authorization check
     if ($appointment->patient_id !== Auth::id()) {
@@ -62,17 +66,28 @@ public function index(Request $request)
     $validated = $request->validate([
         'appointment_date' => 'required|date_format:Y-m-d',
         'appointment_time' => 'required|date_format:H:i',
-        'notes' => 'nullable|string',
+        'reason' => 'nullable|string|max:1000', // Added validation for reason
     ]);
 
-    // Combine date and time into a single datetime string
-    $fullDateTime = $validated['appointment_date'] . ' ' . $validated['appointment_time'];
+    $fullDateTime = \Carbon\Carbon::parse($validated['appointment_date'] . ' ' . $validated['appointment_time']);
+
+    // Final check to prevent double booking
+    $isAlreadyBooked = Appointment::where('doctor_id', $appointment->doctor_id)
+        ->where('appointment_date', $fullDateTime)
+        ->where('id', '!=', $appointment->id)
+        ->where('status', '!=', 'cancelled')
+        ->exists();
+
+    if ($isAlreadyBooked) {
+        return back()->withErrors(['error' => 'Sorry, this time slot is already booked for the selected doctor.']);
+    }
 
     $appointment->update([
         'appointment_date' => $fullDateTime,
+        'reason' => $validated['reason'], // Added reason to the update
     ]);
 
-    return redirect()->route('appointments.index')->with('status', 'Appointment updated successfully!');
+    return redirect()->route('patient.appointments.index')->with('status', 'Appointment updated successfully!');
 }
 
     // Cancel (delete) an appointment
@@ -86,7 +101,7 @@ public function index(Request $request)
         // We'll update the status to 'cancelled' instead of deleting
         $appointment->update(['status' => 'cancelled']);
 
-        return redirect()->route('appointments.index')->with('status', 'Appointment cancelled successfully!');
+        return redirect()->route('patient.appointments.index')->with('status', 'Appointment cancelled successfully!');
     }
 
     // Add this new method to the class
@@ -96,8 +111,21 @@ public function history(Request $request)
                 ->whereIn('status', ['completed', 'cancelled'])
                 ->orderBy('appointment_date', 'desc');
 
-    $appointments = $query->get();
+    $appointments = $query->paginate(10);
 
     return view('patient.appointment-history', compact('appointments'));
 }
+
+ 
+public function show(Appointment $appointment)
+{
+    // Security Check: Ensure the logged-in user owns this appointment
+    if ($appointment->patient_id !== Auth::id()) {
+        abort(403, 'Unauthorized Action');
+    }
+
+    // Return the appointment data with doctor details included
+    return response()->json($appointment->load('doctor'));
+}
+
 }

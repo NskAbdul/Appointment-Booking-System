@@ -11,6 +11,6 @@
         </div>
     </div>
     <div class="d-flex justify-content-end mt-4">
-        <a href="{{ route('book.create.step.two') }}" class="btn btn-primary">Next →</a>
+        <a href="{{ route('patient.book.create.step.two') }}" class="btn btn-primary">Next →</a>
     </div>
 </x-layouts.dashboard>

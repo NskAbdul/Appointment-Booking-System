@@ -1,14 +1,19 @@
-<x-layouts.dashboard>
+<x-layouts.admin>
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="h3 fw-bold">Appointment History</h2>
+        <a href="{{ route('admin.history.export.admin') }}" class="btn btn-secondary">
+            Export History (PDF)
+        </a>
     </div>
 
+    <!-- Appointments Table -->
     <div class="card">
         <div class="table-responsive">
             <table class="table table-hover mb-0">
                 <thead>
                     <tr>
                         <th>ID</th>
+                        <th>Patient</th>
                         <th>Doctor</th>
                         <th>Date & Time</th>
                         <th>Status</th>
@@ -19,6 +24,7 @@
                     @forelse ($appointments as $appointment)
                         <tr>
                             <td>{{ $appointment->id }}</td>
+                            <td>{{ $appointment->patient->name ?? 'N/A' }}</td>
                             <td>{{ $appointment->doctor->name ?? 'N/A' }}</td>
                             <td>{{ \Carbon\Carbon::parse($appointment->appointment_date)->format('M d, Y @ h:i A') }}</td>
                             <td>
@@ -32,7 +38,7 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted">You have no past appointments.</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted">No past appointments found.</td></tr>
                     @endforelse
                 </tbody>
             </table>
@@ -40,6 +46,7 @@
     </div>
     <div class="mt-4">{{ $appointments->links() }}</div>
 
+    <!-- View Appointment Modal -->
     <div class="modal fade" id="viewAppointmentModal" tabindex="-1">
         <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content custom-modal-content">
@@ -63,29 +70,19 @@
                 const appointmentId = event.relatedTarget.getAttribute('data-appointment-id');
                 const modalBody = viewAppointmentModal.querySelector('#viewAppointmentDetails');
                 modalBody.innerHTML = '<div class="text-center p-5"><div class="spinner-border"></div></div>';
-                
-                const response = await fetch(`/patient/appointments/${appointmentId}`);
+                const response = await fetch(`/admin/appointments/${appointmentId}`);
                 const app = await response.json();
                 const appDate = new Date(app.appointment_date);
-
                 modalBody.innerHTML = `
                     <div class="p-2">
-                        <div class="row text-center mb-3"><div class="col"><span class="badge fs-6 text-capitalize ${app.status === 'completed' ? 'bg-success-subtle text-success-emphasis' : 'bg-danger-subtle text-danger-emphasis'}">${app.status}</span></div></div>
-                        <h6 class="mt-4">Doctor Information</h6>
-                        <div class="row">
-                            <div class="col-md-6"><p><small class="text-muted">Name</small><br>${app.doctor.name}</p></div>
-                            <div class="col-md-6"><p><small class="text-muted">Specialty</small><br>${app.doctor.specialty}</p></div>
-                        </div>
-                        <hr>
-                        <h6 class="mt-4">Appointment Details</h6>
-                        <div class="row">
-                            <div class="col-md-6"><p><small class="text-muted">Date & Time</small><br>${appDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}</p></div>
-                            <div class="col-md-6"><p><small class="text-muted">Reason</small><br>${app.reason || 'Not given'}</p></div>
-                        </div>
+                        <div class="row text-center mb-3"><div class="col"><span class="badge fs-6 text-capitalize bg-info-subtle text-info-emphasis">${app.status}</span></div></div>
+                        <h6 class="mt-4">Patient Information</h6><div class="row"><div class="col-md-6"><p><small class="text-muted">Name</small><br>${app.patient.name}</p></div><div class="col-md-6"><p><small class="text-muted">Contact</small><br>${app.patient.phone_number}</p></div></div>
+                        <hr><h6 class="mt-4">Doctor Information</h6><div class="row"><div class="col-md-6"><p><small class="text-muted">Name</small><br>${app.doctor.name}</p></div><div class="col-md-6"><p><small class="text-muted">Specialty</small><br>${app.doctor.specialty}</p></div></div>
+                        <hr><h6 class="mt-4">Appointment Details</h6><div class="row"><div class="col-md-6"><p><small class="text-muted">Date & Time</small><br>${appDate.toLocaleString('en-US', { dateStyle: 'long', timeStyle: 'short' })}</p></div><div class="col-md-6"><p><small class="text-muted">Reason</small><br>${app.reason || 'Not given'}</p></div></div>
                     </div>
                 `;
             });
         }
     </script>
     @endpush
-</x-layouts.dashboard>
+</x-layouts.admin>

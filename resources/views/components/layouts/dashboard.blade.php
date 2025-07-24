@@ -19,13 +19,13 @@
 <div class="dashboard-layout">
     <aside class="sidebar">
         <h1 class="h4 fw-bold mb-4" style="color: #0066CC;">💙 HealthCare Plus</h1>
-        <nav>
-            <a href="{{ route('dashboard') }}" class="sidebar-link {{ request()->routeIs('dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('appointments.index') }}" class="sidebar-link {{ request()->routeIs('appointments.index') ? 'active' : '' }}" class="sidebar-link">Manage Appointments</a>
-            <a href="{{ route('book.create.step.one') }}" class="sidebar-link {{ request()->is('book-appointment*') ? 'active' : '' }}">+ Book Appointment</a>
-            <a href="{{ route('profile.edit') }}" class="sidebar-link {{ request()->routeIs('profile.edit') ? 'active' : '' }}">My Profile</a>
-            <a href="{{ route('appointments.history') }}" class="sidebar-link {{ request()->routeIs('appointments.history') ? 'active' : '' }}">Appointment History</a>
-        </nav>
+       <nav>
+    <a href="{{ route('patient.dashboard') }}" class="sidebar-link {{ request()->routeIs('patient.dashboard') ? 'active' : '' }}">Dashboard</a>
+    <a href="{{ route('patient.appointments.index') }}" class="sidebar-link {{ request()->routeIs('patient.appointments.*') ? 'active' : '' }}">Manage Appointments</a>
+    <a href="{{ route('patient.book.create.step.one') }}" class="sidebar-link {{ request()->routeIs('patient.book.*') ? 'active' : '' }}">+ Book Appointment</a>
+    <a href="{{ route('patient.appointments.history') }}" class="sidebar-link {{ request()->routeIs('patient.appointments.history') ? 'active' : '' }}">Appointment History</a>
+    <a href="{{ route('patient.profile.edit') }}" class="sidebar-link {{ request()->routeIs('patient.profile.edit') ? 'active' : '' }}">Profile</a>
+</nav>
     </aside>
 
     <main class="main-content">

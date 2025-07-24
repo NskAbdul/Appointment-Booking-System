@@ -14,7 +14,7 @@ class RedirectIfStaffAuthenticated
         if (Auth::check()) {
             // If the user is a staff member, redirect them to the staff dashboard.
             if (in_array(Auth::user()->role, ['doctor', 'admin'])) {
-                return redirect()->route('staff.dashboard');
+                return redirect()->route('staff.dashboard.router');
             }
         }
 

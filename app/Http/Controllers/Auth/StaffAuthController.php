@@ -17,31 +17,39 @@ class StaffAuthController extends Controller
     }
 
     // Handle Staff Login
-    public function login(Request $request)
-    {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+   // In StaffAuthController.php
 
-        if (Auth::attempt($credentials)) {
-            $user = Auth::user();
-            // Redirect to specific dashboard based on role
-            if ($user->role === 'doctor' || $user->role === 'admin') {
-                $request->session()->regenerate();
-                return redirect()->intended('/staff/dashboard');
-            }
-            // If a patient tries to log in, log them out and redirect back with error
-            Auth::logout();
-            return back()->withErrors([
-                'email' => 'You do not have permission to access the staff portal.',
-            ])->onlyInput('email');
-        }
+// In StaffAuthController.php
 
+public function login(Request $request)
+{
+    $credentials = $request->validate([
+        'email' => 'required|email',
+        'password' => 'required',
+    ]);
+
+    // Find the user by email first
+    $user = User::where('email', $credentials['email'])->first();
+
+    // 1. Check if a staff user with this email exists
+    if (!$user || !in_array($user->role, ['doctor', 'admin'])) {
         return back()->withErrors([
-            'email' => 'The provided credentials do not match our records.',
+            'email' => 'No staff account was found with this email address.',
         ])->onlyInput('email');
     }
+
+    // 2. If the user exists, now check if the password is correct
+    if (!Hash::check($credentials['password'], $user->password)) {
+        return back()->withErrors([
+            'password' => 'The password you entered is incorrect.',
+        ])->onlyInput('email');
+    }
+
+    // If both checks pass, log the user in
+    Auth::login($user);
+    $request->session()->regenerate();
+    return redirect()->intended(route('staff.dashboard.router'));
+}
 
     // Show Staff Registration Form
     public function showRegistrationForm()

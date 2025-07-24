@@ -24,6 +24,8 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+// In AuthenticatedSessionController.php
+
 public function store(LoginRequest $request): RedirectResponse
 {
     $request->authenticate();
@@ -34,7 +36,6 @@ public function store(LoginRequest $request): RedirectResponse
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        // Redirect back with the correct error message
         return back()->withErrors([
             'email' => 'This login is for patients only. Please use the Staff Portal.',
         ])->onlyInput('email');
@@ -42,9 +43,8 @@ public function store(LoginRequest $request): RedirectResponse
 
     $request->session()->regenerate();
 
-    // This is the corrected redirect for modern Laravel versions.
-    // It will send the user to their intended page or to '/dashboard'.
-    return redirect()->intended('/dashboard');
+    // CORRECTED: Redirect to the new patient dashboard route
+    return redirect()->intended(route('patient.dashboard'));
 }
     /**
      * Destroy an authenticated session.

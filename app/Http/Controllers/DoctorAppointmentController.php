@@ -75,7 +75,7 @@ public function history(Request $request)
                 ->whereIn('status', ['completed', 'cancelled'])
                 ->orderBy('appointment_date', 'desc');
 
-    $appointments = $query->get();
+    $appointments = $query->paginate(10);
 
     return view('staff.doctor.appointment-history', compact('appointments'));
 }

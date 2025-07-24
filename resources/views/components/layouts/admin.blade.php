@@ -21,11 +21,13 @@
     <aside class="sidebar">
         <h1 class="h4 fw-bold mb-4" style="color: #0066CC;">💙 HealthCare Plus</h1>
         <p class="text-muted small">Admin Portal</p>
-        <nav>
-            <a href="{{ route('admin.dashboard') }}" class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('admin.users.index') }}" class="sidebar-link {{ request()->routeIs('admin.users.*') ? 'active' : '' }}">User Management</a>
-            <a href="#" class="sidebar-link">All Appointments</a>
-        </nav>
+      <nav>
+    <a href="{{ route('admin.dashboard') }}" class="sidebar-link ...">Dashboard</a>
+    <a href="{{ route('admin.users.index') }}" class="sidebar-link ...">User Management</a>
+    <a href="{{ route('admin.appointments.index') }}" class="sidebar-link ...">All Appointments</a>
+    <a href="{{ route('admin.appointments.history') }}" class="sidebar-link {{ request()->routeIs('admin.appointments.history') ? 'active' : '' }}">Appointment History</a>
+    <a href="{{ route('admin.profile.edit') }}" class="sidebar-link ...">My Profile</a>
+</nav>
     </aside>
 
     <!-- Main Content -->

@@ -30,9 +30,10 @@
                     </select>
                 </div>
                 <div class="col-md-2">
+                    <div class="d-flex gap-2">
                     <button type="submit" class="btn btn-primary w-100">Filter</button>
-                    <a href="{{ route('doctor.appointments.index') }}" class="btn btn-light w-100 mt-2">Clear</a>
-                </div>
+                    <a href="{{ route('doctor.appointments.index') }}" class="btn btn-light w-50">Clear</a>
+                </div></div>
             </div>
         </form>
     </div>
@@ -63,7 +64,7 @@
                             <span>{{ $appointment->doctor_specialty }}</span>
                         </div>
                         @if($appointment->reason)
-                            <p class="mt-2 mb-0"><strong class="small">Reason:</strong> {{ $appointment->reason }}</p>
+                            <p class="mt-2 mb-0"><strong class="small">Reason:</strong> {{ $appointment->reason ?? 'Not given' }}</p>
                         @endif
                     </div>
                 </div>
@@ -77,7 +78,8 @@
                             data-patient-gender="{{ ucfirst($appointment->patient->gender ?? 'N/A') }}"
                             data-patient-phone="{{ $appointment->patient->phone_number ?? 'N/A' }}"
                             data-patient-email="{{ $appointment->patient->email ?? 'N/A' }}"
-                            data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}">
+                            data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}"
+                            data-appointment-reason="{{ $appointment->reason ?? 'Not given' }}">
                         View Patient
                     </button>
                     @if ($appointment->status === 'scheduled')
@@ -118,6 +120,10 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4">
+            <h6 class="mb-3">Reason for Visit</h6>
+             <p id="modal-appointment-reason" class="text-muted border p-3 rounded"></p>
+            <hr class="my-4">
+            <h6 class="mb-3">Patient Information</h6>
             <div class="row g-4">
                 <div class="col-6">
                     <div class="info-item">
@@ -221,6 +227,7 @@
                 modal.querySelector('#modal-patient-phone').textContent = patientPhone;
                 modal.querySelector('#modal-patient-email').textContent = patientEmail;
                 modal.querySelector('#modal-patient-address').textContent = patientAddress;
+                modal.querySelector('#modal-appointment-reason').textContent = button.getAttribute('data-appointment-reason');
             });
         }
     </script>

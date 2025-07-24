@@ -1,7 +1,7 @@
 <x-layouts.dashboard>
     @include('patient.book.partials.header', ['step' => 3])
 
-    <form id="bookingForm" method="POST" action="{{ route('book.store.step.three') }}">
+    <form id="bookingForm" method="POST" action="{{ route('patient.book.store.step.three') }}">
         @csrf
         <!-- Hidden input to store the final selected datetime -->
         <input type="hidden" name="appointment_time" id="appointment_time" required>
@@ -37,17 +37,17 @@
         </div>
 
         <div class="d-flex justify-content-between mt-4">
-            <a href="{{ route('book.create.step.two') }}" class="btn btn-secondary">← Back</a>
+            <a href="{{ route('patient.book.create.step.two') }}" class="btn btn-secondary">← Back</a>
             <button type="submit" class="btn btn-primary" id="next-btn" disabled>Next →</button>
         </div>
     </form>
 
 <style>
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; }
-    .calendar-day { padding: 0.75rem 0.5rem; border-radius: 50%; cursor: pointer; }
+    .calendar-day { padding: 0.75rem 0.5rem; border-radius: 5%; cursor: pointer; }
     .calendar-day.disabled { color: #adb5bd; cursor: not-allowed; background-color: #f8f9fa; }
     .calendar-day.empty { cursor: default; }
-    .calendar-day:not(.disabled):not(.empty):hover { background-color: #eef2ff; }
+    .calendar-day:not(.disabled):not(.empty):hover { background-color: #b9c6f3ff; }
     .calendar-day.selected { background-color: #2563eb; color: white; font-weight: bold; }
     .time-slots-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
     .time-slot-btn.selected { background-color: #2563eb; color: white; border-color: #2563eb; }
@@ -147,23 +147,25 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedTime = null;
 
         const doctorId = "{{ $booking['doctor']->id }}";
-        const url = `/api/doctors/${doctorId}/available-slots?date=${date}`;
+
+        // CORRECTED: Using the route() helper to build the URL
+        let urlTemplate = "{{ route('patient.api.doctors.slots', ['doctor' => ':doctorId']) }}";
+        const url = `${urlTemplate.replace(':doctorId', doctorId)}?date=${date}`;
 
         try {
             const response = await fetch(url);
             const slots = await response.json();
-            
+
             timeSlotsContainer.innerHTML = '';
             if (Object.keys(slots).length > 0) {
-                for (const key in slots) {
-                    const time = slots[key];
+                slots.forEach(time => {
                     const button = document.createElement('button');
                     button.type = 'button';
                     button.className = 'btn btn-outline-primary time-slot-btn';
                     button.dataset.time = time;
                     button.textContent = time;
                     timeSlotsContainer.appendChild(button);
-                }
+                });
             } else {
                 timeSlotsContainer.innerHTML = '<p class="text-muted">No available slots for this day.</p>';
             }

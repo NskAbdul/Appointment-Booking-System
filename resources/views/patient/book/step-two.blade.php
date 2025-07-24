@@ -1,7 +1,7 @@
 <x-layouts.dashboard>
     @include('patient.book.partials.header', ['step' => 2])
 
-    <form id="doctor-selection-form" method="POST" action="{{ route('book.store.step.two') }}">
+    <form id="doctor-selection-form" method="POST" action="{{ route('patient.book.store.step.two') }}">
         @csrf
         <div class="card">
             <h3 class="h5 fw-bold mb-2">Select Doctor</h3>
@@ -23,7 +23,7 @@
             </div>
         </div>
         <div class="d-flex justify-content-between mt-4">
-            <a href="{{ route('book.create.step.one') }}" class="btn btn-secondary">← Back</a>
+            <a href="{{ route('patient.book.create.step.one') }}" class="btn btn-secondary">← Back</a>
             <!-- Button is now disabled by default -->
             <button type="submit" id="next-btn" class="btn btn-primary" disabled>Next →</button>
         </div>

@@ -21,12 +21,12 @@
     <aside class="sidebar">
         <h1 class="h4 fw-bold mb-4" style="color: #0066CC;">💙 HealthCare Plus</h1>
         <p class="text-muted small">Doctor Portal</p>
-        <nav>
-            <a href="{{ route('doctor.dashboard') }}" class="sidebar-link {{ request()->routeIs('doctor.dashboard') ? 'active' : '' }}">Dashboard</a>
-            <a href="{{ route('doctor.appointments.index') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.index') ? 'active' : '' }}">My Appointments</a>
-            <a href="{{ route('doctor.profile.edit') }}" class="sidebar-link {{ request()->routeIs('doctor.profile.edit') ? 'active' : '' }}">My Profile</a>
-            <a href="{{ route('doctor.appointments.history') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.history') ? 'active' : '' }}">Appointment History</a>
-        </nav>
+       <nav>
+    <a href="{{ route('doctor.dashboard') }}" class="sidebar-link {{ request()->routeIs('doctor.dashboard') ? 'active' : '' }}">Dashboard</a>
+    <a href="{{ route('doctor.appointments.index') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.index') ? 'active' : '' }}">My Appointments</a>
+    <a href="{{ route('doctor.appointments.history') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.history') ? 'active' : '' }}">Appointment History</a>
+    <a href="{{ route('doctor.profile.edit') }}" class="sidebar-link {{ request()->routeIs('doctor.profile.edit') ? 'active' : '' }}">My Profile</a>
+</nav>
     </aside>
 
     <!-- Main Content -->

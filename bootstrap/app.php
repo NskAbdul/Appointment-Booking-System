@@ -13,15 +13,25 @@ return Application::configure(basePath: dirname(__DIR__))
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
-   ->withMiddleware(function (Middleware $middleware) {
+   // In bootstrap/app.php
+
+->withMiddleware(function (Middleware $middleware) {
     $middleware->alias([
         'is_patient' => \App\Http\Middleware\IsPatient::class,
-        // Add aliases for our new guest middlewares
         'guest_patient' => \App\Http\Middleware\RedirectIfPatientAuthenticated::class,
         'guest_staff' => \App\Http\Middleware\RedirectIfStaffAuthenticated::class,
-         'is_doctor' => \App\Http\Middleware\IsDoctor::class,
-        'is_admin' => \App\Http\Middleware\IsAdmin::class, 
+        'is_doctor' => \App\Http\Middleware\IsDoctor::class,
+        'is_admin' => \App\Http\Middleware\IsAdmin::class,
     ]);
+
+    // CORRECTED REDIRECTION LOGIC
+    RedirectIfAuthenticated::redirectUsing(function (Request $request) {
+        $user = Auth::user();
+        if ($user && ($user->role === 'doctor' || $user->role === 'admin')) {
+            return route('staff.dashboard.router');
+        }
+        return route('patient.dashboard');
+    });
 })
     ->withExceptions(function (Exceptions $exceptions) {
         //

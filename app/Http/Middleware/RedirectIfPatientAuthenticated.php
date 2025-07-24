@@ -14,7 +14,7 @@ class RedirectIfPatientAuthenticated
         if (Auth::check()) {
             // If the user is a patient, redirect them to the patient dashboard.
             if (Auth::user()->role === 'patient') {
-                return redirect()->route('dashboard');
+                return redirect()->route('patient.dashboard');
             }
         }
 

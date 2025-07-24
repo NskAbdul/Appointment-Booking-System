@@ -32,7 +32,7 @@ class AppointmentBookingController extends Controller
         $validated = $request->validate(['doctor_id' => 'required|exists:users,id']);
         $doctor = User::find($validated['doctor_id']);
         $request->session()->put('booking.doctor', $doctor);
-        return redirect()->route('book.create.step.three');
+        return redirect()->route('patient.book.create.step.three');
     }
 
     // Step 3: Show Date & Time Selection
@@ -60,7 +60,7 @@ public function createStepThree(Request $request)
     {
         $validated = $request->validate(['appointment_time' => 'required']);
         $request->session()->put('booking.appointment_time', $validated['appointment_time']);
-        return redirect()->route('book.create.step.four');
+        return redirect()->route('patient.book.create.step.four');
     }
 
     // Step 4: Show Confirmation Page
@@ -74,48 +74,58 @@ public function createStepThree(Request $request)
    // In AppointmentBookingController.php -> store()
 public function store(Request $request)
 {
-     $booking = $request->session()->get('booking');
-    $appointmentTime = Carbon::parse($booking['appointment_time']);
+    $booking = $request->session()->get('booking');
+    $appointmentTime = \Carbon\Carbon::parse($booking['appointment_time']);
 
-    // --- FINAL CHECK TO PREVENT DOUBLE BOOKING ---
+    // Final check to prevent double booking
     $isAlreadyBooked = Appointment::where('doctor_id', $booking['doctor']->id)
         ->where('appointment_date', $appointmentTime)
         ->where('status', '!=', 'cancelled')
         ->exists();
 
     if ($isAlreadyBooked) {
-        return redirect()->route('book.create.step.three')
+        return redirect()->route('patient.book.create.step.three')
             ->withErrors(['appointment_time' => 'Sorry, this time slot was just booked. Please select a different time.']);
     }
 
-    Appointment::create([
+    // This is the full, correct code to create the appointment
+    $appointment = Appointment::create([
         'patient_id' => $booking['patient']->id,
-        'doctor_id' => $booking['doctor']->id, // <-- Use the ID
-        'doctor_name' => $booking['doctor']->name, // Keep name for display
-        'doctor_specialty' => $booking['doctor']->specialty, // Keep specialty for display
-        'appointment_date' => Carbon::parse($booking['appointment_time']),
+        'doctor_id' => $booking['doctor']->id,
+        'doctor_name' => $booking['doctor']->name,
+        'doctor_specialty' => $booking['doctor']->specialty,
+        'appointment_date' => $appointmentTime,
         'status' => 'scheduled',
-        'reason' => $request->input('notes'),
+        'reason' => $request->input('reason'),
     ]);
 
+    // Store the new appointment's ID in the session for the PDF download
+    $request->session()->put('last_booked_appointment_id', $appointment->id);
+
     $request->session()->forget('booking');
-    return redirect()->route('book.success');
+    
+    // Redirect to the new confirmation page route
+    return redirect()->route('patient.book.confirmation');
 }
 
     // Show success page
-    public function success()
-    {
-        return view('patient.book.success');
+    public function confirmation()
+{
+    // Ensure there's an ID in the session, otherwise redirect away
+    if (!session('last_booked_appointment_id')) {
+        return redirect()->route('patient.dashboard');
     }
+    return view('patient.book.confirmation');
+}
 
     // In AppointmentBookingController.php
 
 public function getAvailableSlots(Request $request, User $doctor)
 {
     $request->validate(['date' => 'required|date_format:Y-m-d']);
-    $date = Carbon::parse($request->date);
+    $date = \Carbon\Carbon::parse($request->date);
 
-    // Define the doctor's full working schedule (e.g., 9 AM to 5 PM, 30-min slots)
+    // Define the doctor's full working schedule
     $startTime = $date->copy()->setHour(9);
     $endTime = $date->copy()->setHour(17);
     $allSlots = [];
@@ -124,20 +134,15 @@ public function getAvailableSlots(Request $request, User $doctor)
         $startTime->addMinutes(30);
     }
 
-    // Get all appointments already booked for this doctor on this day
-    $bookedSlots = Appointment::where('doctor_id', $doctor->id)
+    // Get all appointments already booked
+    $bookedSlots = \App\Models\Appointment::where('doctor_id', $doctor->id)
         ->whereDate('appointment_date', $date)
-        ->where('status', '!=', 'cancelled') // Exclude cancelled appointments
-        ->get()
-        ->pluck('appointment_date')
-        ->map(function ($datetime) {
-            return Carbon::parse($datetime)->format('H:i');
-        })
-        ->toArray();
+        ->where('status', '!=', 'cancelled')
+        ->get()->pluck('appointment_date')->map(fn($dt) => \Carbon\Carbon::parse($dt)->format('H:i'))->toArray();
 
-    // Filter out the booked slots to find what's available
+    // Find what's available
     $availableSlots = array_diff($allSlots, $bookedSlots);
 
-    return response()->json($availableSlots);
+    return response()->json(array_values($availableSlots));
 }
 }

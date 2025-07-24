@@ -52,4 +52,18 @@ protected $fillable = [
     {
         return Carbon::parse($this->attributes['date_of_birth'])->age;
     }
+
+    // In app/Models/User.php
+
+// This defines the appointments a user has as a patient
+public function appointments()
+{
+    return $this->hasMany(Appointment::class, 'patient_id');
+}
+
+// This defines the appointments a user has as a doctor
+public function doctorAppointments()
+{
+    return $this->hasMany(Appointment::class, 'doctor_id');
+}
 }

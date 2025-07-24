@@ -30,7 +30,13 @@
 
 
     <div>
-        <h3 class="h4 fw-bold mb-3">Today's Schedule</h3>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="h4 fw-bold mb-0">Today's Schedule</h3>
+    <a href="{{ route('doctor.schedule.export.doctor') }}" class="btn btn-sm btn-outline-primary">
+        Export Today's PDF
+    </a>
+</div>
+
         <p class="text-muted">{{ \Carbon\Carbon::today()->format('l, F j, Y') }}</p>
         <div class="card">
             @forelse ($todaysSchedule as $appointment)
@@ -48,7 +54,8 @@
                                 data-patient-gender="{{ ucfirst($appointment->patient->gender ?? 'N/A') }}"
                                 data-patient-phone="{{ $appointment->patient->phone_number ?? 'N/A' }}"
                                 data-patient-email="{{ $appointment->patient->email ?? 'N/A' }}"
-                                data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}">
+                                data-patient-address="{{ $appointment->patient->address ?? 'N/A' }}"
+                                data-appointment-reason="{{ $appointment->reason ?? 'Not given' }}">
                             View Details
                         </button>
                     </div>
@@ -70,6 +77,10 @@
             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <div class="modal-body p-4">
+            <h6 class="mb-3">Reason for Visit</h6>
+            <p id="modal-appointment-reason-dash" class="text-muted border p-3 rounded"></p>
+            <hr class="my-4">
+            <h6 class="mb-3">Patient Information</h6>
             <div class="row g-4">
                 <div class="col-6"><div class="info-item"><div class="info-label">Age</div><div id="modal-patient-age" class="info-value"></div></div></div>
                 <div class="col-6"><div class="info-item"><div class="info-label">Gender</div><div id="modal-patient-gender" class="info-value"></div></div></div>
@@ -117,6 +128,7 @@
                 modal.querySelector('#modal-patient-phone').textContent = button.getAttribute('data-patient-phone');
                 modal.querySelector('#modal-patient-email').textContent = button.getAttribute('data-patient-email');
                 modal.querySelector('#modal-patient-address').textContent = button.getAttribute('data-patient-address');
+                 modal.querySelector('#modal-appointment-reason-dash').textContent = button.getAttribute('data-appointment-reason');
             });
         }
         
