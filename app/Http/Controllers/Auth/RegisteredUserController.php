@@ -32,6 +32,8 @@ class RegisteredUserController extends Controller
    // At the top, make sure you have:
 
 // ... inside the RegisteredUserController class
+// In app/Http/Controllers/Auth/RegisteredUserController.php
+
 public function store(Request $request): RedirectResponse
 {
     $request->validate([
@@ -40,7 +42,7 @@ public function store(Request $request): RedirectResponse
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
         'phone_number' => ['required', 'string', 'max:20'],
         'date_of_birth' => ['required', 'date'],
-        'gender' => ['required', 'string', 'in:male,female,other'], // Example genders
+        'gender' => ['required', 'string', 'in:male,female,other'],
         'address' => ['required', 'string', 'max:500'],
     ]);
 
@@ -52,13 +54,14 @@ public function store(Request $request): RedirectResponse
         'date_of_birth' => $request->date_of_birth,
         'gender' => $request->gender,
         'address' => $request->address,
-        // 'role' will automatically be 'patient' due to the database default
+        'role' => 'patient', // Explicitly set role
     ]);
 
     event(new Registered($user));
 
     Auth::login($user);
 
-    return redirect(route('dashboard', absolute: false));
+    // CORRECTED: Redirect to the new patient dashboard route
+    return redirect()->route('patient.dashboard');
 }
 }

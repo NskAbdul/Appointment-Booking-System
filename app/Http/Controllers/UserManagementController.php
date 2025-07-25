@@ -4,27 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules as PasswordRules;
 
 class UserManagementController extends Controller
 {
-    public function index(Request $request)
-    {
-        $query = User::orderBy('created_at', 'desc');
+   
+public function index(Request $request)
+{
+    
 
-        if ($request->filled('role') && $request->role != 'all') {
-            $query->where('role', $request->role);
-        }
-        if ($request->filled('search')) {
-            $searchTerm = $request->search;
-            $query->where(fn($q) => $q->where('name', 'like', "%{$searchTerm}%")->orWhere('email', 'like', "%{$searchTerm}%"));
-        }
+    $query = User::orderBy('created_at', 'desc')
+                // THIS IS THE NEW LINE THAT FIXES THE ISSUE
+                ->where('id', '!=', Auth::id());
 
-        $users = $query->paginate(10); // You can increase this number if you have more cards per row
-        return view('admin.users.index', compact('users'));
+    // Handle role filter
+    if ($request->filled('role') && $request->role != 'all') {
+        $query->where('role', $request->role);
     }
+
+    // Handle search filter
+    if ($request->filled('search')) {
+        $searchTerm = $request->search;
+        $query->where(function($q) use ($searchTerm) {
+            $q->where('name', 'like', '%' . $searchTerm . '%')
+              ->orWhere('email', 'like', '%' . $searchTerm . '%');
+        });
+    }
+
+    $users = $query->paginate(10);
+
+    return view('admin.users.index', compact('users'));
+}
 
     public function show(User $user)
     {

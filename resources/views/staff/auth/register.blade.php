@@ -59,6 +59,16 @@
                         <label for="date_of_birth" class="form-label">Date of Birth</label>
                         <input type="date" name="date_of_birth" id="date_of_birth" class="form-control" value="{{ old('date_of_birth') }}" required>
                     </div>
+                     <div class="col-md-6">
+                        <label for="gender" class="form-label">Gender</label>
+                        <select name="gender" id="gender" class="form-select" required>
+                            <option value="" disabled selected>Select gender</option>
+                            <option value="male" @selected(old('gender') == 'male')>Male</option>
+                            <option value="female" @selected(old('gender') == 'female')>Female</option>
+                            <option value="other" @selected(old('gender') == 'other')>Other</option>
+                        </select>
+                    </div>
+
                     <div class="col-12">
                         <label for="address" class="form-label">Address</label>
                         <input type="text" name="address" id="address" class="form-control" value="{{ old('address') }}" required>

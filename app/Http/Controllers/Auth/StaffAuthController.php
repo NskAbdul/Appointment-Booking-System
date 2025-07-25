@@ -59,35 +59,37 @@ public function login(Request $request)
 
     // Handle Staff Registration
     public function register(Request $request)
-    {
-        $validatedData = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:8|confirmed',
-            'role' => 'required|in:doctor,admin',
-            'phone_number' => 'required|string|max:20',
-            'address' => 'required|string|max:500',
-            'date_of_birth' => 'required|date',
-            'specialty' => 'nullable|required_if:role,doctor|string|max:255',
-            'license_number' => 'nullable|required_if:role,doctor|string|max:255',
-            'experience_years' => 'nullable|required_if:role,doctor|integer|min:0',
-        ]);
+{
+    $validatedData = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|string|email|max:255|unique:users',
+        'password' => 'required|string|min:8|confirmed',
+        'role' => 'required|in:doctor,admin',
+        'phone_number' => 'required|string|max:20',
+        'address' => 'required|string|max:500',
+        'date_of_birth' => 'required|date',
+        'gender' => 'required|string|in:male,female,other', // <-- ADDED THIS LINE
+        'specialty' => 'nullable|required_if:role,doctor|string|max:255',
+        'license_number' => 'nullable|required_if:role,doctor|string|max:255',
+        'experience_years' => 'nullable|required_if:role,doctor|integer|min:0',
+    ]);
 
-        $user = User::create([
-            'name' => $validatedData['name'],
-            'email' => $validatedData['email'],
-            'password' => Hash::make($validatedData['password']),
-            'role' => $validatedData['role'],
-            'phone_number' => $validatedData['phone_number'],
-            'address' => $validatedData['address'],
-            'date_of_birth' => $validatedData['date_of_birth'],
-            'specialty' => $validatedData['specialty'] ?? null,
-            'license_number' => $validatedData['license_number'] ?? null,
-            'experience_years' => $validatedData['experience_years'] ?? null,
-        ]);
+    $user = User::create([
+        'name' => $validatedData['name'],
+        'email' => $validatedData['email'],
+        'password' => Hash::make($validatedData['password']),
+        'role' => $validatedData['role'],
+        'phone_number' => $validatedData['phone_number'],
+        'address' => $validatedData['address'],
+        'date_of_birth' => $validatedData['date_of_birth'],
+        'gender' => $validatedData['gender'], // <-- ADDED THIS LINE
+        'specialty' => $validatedData['specialty'] ?? null,
+        'license_number' => $validatedData['license_number'] ?? null,
+        'experience_years' => $validatedData['experience_years'] ?? null,
+    ]);
 
-        Auth::login($user);
+    Auth::login($user);
 
-        return redirect('/staff/dashboard');
-    }
+    return redirect()->route('staff.dashboard.router');
+}
 }
