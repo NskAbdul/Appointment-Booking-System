@@ -9,6 +9,8 @@
 /storage/app/public
 /storage/debugbar
 /storage/framework
+/storage/framework/cache/*
+/storage/framework/views/*
 /storage/logs
 /bootstrap/cache/*.php
 
@@ -35,3 +37,5 @@ Thumbs.db
 README.md
 .gitattributes
 .gitignore
+
+railway.json
