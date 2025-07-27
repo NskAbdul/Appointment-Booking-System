@@ -1,0 +1,14 @@
+/vendor/
+/node_modules/
+/public/build/
+.env
+.git
+.github
+Dockerfile
+docker-compose.yml
+.editorconfig
+.styleci.yml
+.env.example
+.gitattributes
+.gitignore
+README.md
