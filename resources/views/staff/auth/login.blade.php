@@ -3,7 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <title>Staff Login</title>
-    @vite(['resources/scss/app.scss', 'resources/js/app.js'])
+   @php
+    $manifestPath = public_path('build/manifest.json');
+    $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
+@endphp
+
+@if (!empty($manifest) && isset($manifest['resources/scss/app.scss']['file']))
+    <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/scss/app.scss']['file']) }}">
+@endif
+
+@if (!empty($manifest) && isset($manifest['resources/js/app.js']['file']))
+    <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
+@endif
     <style>body { background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; min-height: 100vh; }</style>
 </head>
 <body>
