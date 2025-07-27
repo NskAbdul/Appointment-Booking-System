@@ -1,24 +1,47 @@
-*.log
+# OS junk files
 .DS_Store
+Thumbs.db
+*.log
+
+# Environment and sensitive files
 /.env
 .env.backup
 .env.production
+/auth.json
+
+# PHP and test-specific files
 .phpactor.json
 .phpunit.result.cache
-/.fleet
-/.idea
-/.nova
 /.phpunit.cache
-/.vscode
-/.zed
-/auth.json
+
+# Laravel dependencies and build artifacts
+/vendor
 /node_modules
-public/build
+/public/build
 /public/hot
 /public/storage
+
+# Laravel cache, logs, keys
 /storage/*.key
 /storage/pail
-/vendor
+/storage/logs
+/storage/framework
+/bootstrap/cache/*.php
+
+# Development tools & editor configs
+/.idea
+/.vscode
+/.fleet
+/.zed
+/.nova
+
+# Homestead & config files
 Homestead.json
 Homestead.yaml
-Thumbs.db
+
+# Git & CI/CD
+.gitattributes
+.gitignore
+
+# Optional backups/readmes
+README.md

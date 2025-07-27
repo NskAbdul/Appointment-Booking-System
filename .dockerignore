@@ -1,14 +1,37 @@
+# Node / PHP dependencies
 /vendor/
 /node_modules/
-public/build/
+
+# Vite build assets
+/public/build/
+
+# Laravel cached files
+/storage/app/public
+/storage/debugbar
+/storage/framework
+/storage/logs
+/bootstrap/cache/*.php
+
+# Environment and config files
 .env
-.git
-.github
+.env.example
 Dockerfile
 docker-compose.yml
 .editorconfig
 .styleci.yml
-.env.example
+
+# Git & CI/CD
+.git
+.github
+
+# OS and editor junk
+.DS_Store
+Thumbs.db
+*.log
+*.sublime*
+*.swp
+
+# Miscellaneous
+README.md
 .gitattributes
 .gitignore
-README.md

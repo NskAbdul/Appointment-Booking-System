@@ -3,18 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <title>Staff Registration</title>
-    @php
+   @php
     $manifestPath = public_path('build/manifest.json');
     $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
 @endphp
 
-@if (!empty($manifest) && isset($manifest['resources/scss/app.scss']['file']))
-    <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/scss/app.scss']['file']) }}">
+@if (!empty($manifest))
+
+    {{-- Load compiled SCSS (converted to CSS) --}}
+    @if (isset($manifest['resources/scss/app.scss']['file']))
+        <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/scss/app.scss']['file']) }}">
+    @endif
+
+    {{-- Load compiled JS --}}
+    @if (isset($manifest['resources/js/app.js']['file']))
+        <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
+    @endif
+
 @endif
 
-@if (!empty($manifest) && isset($manifest['resources/js/app.js']['file']))
-    <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
-@endif
     <style>
         body { background-color: #f0f2f5; display: flex; align-items: center; justify-content: center; padding: 2rem 0; }
         .card { width: 100%; max-width: 600px; }

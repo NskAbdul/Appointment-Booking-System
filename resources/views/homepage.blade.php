@@ -4,18 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HealthCare Plus - Appointment Booking</title>
-   @php
+  @php
     $manifestPath = public_path('build/manifest.json');
     $manifest = file_exists($manifestPath) ? json_decode(file_get_contents($manifestPath), true) : [];
 @endphp
 
-@if (!empty($manifest) && isset($manifest['resources/scss/app.scss']['file']))
-    <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/scss/app.scss']['file']) }}">
+@if (!empty($manifest))
+
+    {{-- Load compiled SCSS (converted to CSS) --}}
+    @if (isset($manifest['resources/scss/app.scss']['file']))
+        <link rel="stylesheet" href="{{ asset('build/' . $manifest['resources/scss/app.scss']['file']) }}">
+    @endif
+
+    {{-- Load compiled JS --}}
+    @if (isset($manifest['resources/js/app.js']['file']))
+        <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
+    @endif
+
 @endif
 
-@if (!empty($manifest) && isset($manifest['resources/js/app.js']['file']))
-    <script type="module" src="{{ asset('build/' . $manifest['resources/js/app.js']['file']) }}"></script>
-@endif
     <style>
         body {
             background: linear-gradient(to right, #e0f7fa, #b3e5fc);
