@@ -130,7 +130,7 @@ This web application is designed to streamline the hospital appointment process.
 
 ### 1. Clone the repository
 ```bash
-git clone https://github.com/nikhilgunadala/Appointment-Booking-System.git
+git clone https://github.com/NskAbdul/Appointment-Booking-System.git
 cd Appointment-Booking-System
 ```
 
