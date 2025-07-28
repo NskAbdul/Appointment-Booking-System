@@ -109,13 +109,20 @@ public function store(Request $request)
 }
 
     // Show success page
-    public function confirmation()
+   public function confirmation(Request $request)
 {
-    // Ensure there's an ID in the session, otherwise redirect away
-    if (!session('last_booked_appointment_id')) {
+    // Get the appointment ID from the session
+    $appointmentId = $request->session()->get('last_booked_appointment_id');
+
+    // Security check: If there's no ID, redirect to the dashboard
+    if (!$appointmentId) {
         return redirect()->route('patient.dashboard');
     }
-    return view('patient.book.confirmation');
+
+    // Pass the ID to the view
+    return view('patient.book.confirmation', [
+        'appointmentId' => $appointmentId
+    ]);
 }
 
     // In AppointmentBookingController.php

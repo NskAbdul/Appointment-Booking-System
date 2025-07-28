@@ -1,33 +1,33 @@
 <x-layouts.dashboard>
-    @include('patient.book.partials.header', ['step' => 3])
+    <div class="container">
+        @include('patient.book.partials.header', ['step' => 3])
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <form id="bookingForm" method="POST" action="{{ route('patient.book.store.step.three') }}">
+                    @csrf
+                    <input type="hidden" name="appointment_time" id="appointment_time" required>
+                        <div class="card">
+                            <h3 class="h5 fw-bold mb-2">Select Date & Time</h3>
+                            <p class="text-muted">Choose your preferred appointment slot for {{ $booking['doctor']->name ?? 'your doctor' }}.</p>
 
-    <form id="bookingForm" method="POST" action="{{ route('patient.book.store.step.three') }}">
-        @csrf
-        <!-- Hidden input to store the final selected datetime -->
-        <input type="hidden" name="appointment_time" id="appointment_time" required>
-
-        <div class="card">
-            <h3 class="h5 fw-bold mb-2">Select Date & Time</h3>
-            <p class="text-muted">Choose your preferred appointment slot for {{ $booking['doctor']->name ?? 'your doctor' }}.</p>
-
-            <div class="row mt-4">
+                            <div class="row mt-4">
                 <!-- Calendar Section with Dropdowns -->
-                <div class="col-md-7">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <button type="button" id="prev-month" class="btn btn-light">‹</button>
-                        <div class="d-flex gap-2">
-                            <select id="month-select" class="form-select"></select>
-                            <select id="year-select" class="form-select"></select>
-                        </div>
-                        <button type="button" id="next-month" class="btn btn-light">›</button>
-                    </div>
-                    <div id="calendar" class="calendar-grid">
-                        <div class="fw-bold">Sun</div><div class="fw-bold">Mon</div><div class="fw-bold">Tue</div><div class="fw-bold">Wed</div><div class="fw-bold">Thu</div><div class="fw-bold">Fri</div><div class="fw-bold">Sat</div>
-                    </div>
-                </div>
+                                <div class="col-lg-7 mb-4 mb-lg-0">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <button type="button" id="prev-month" class="btn btn-light">‹</button>
+                                        <div class="d-flex gap-2">
+                                             <select id="month-select" class="form-select"></select>
+                                            <select id="year-select" class="form-select"></select>
+                                        </div>
+                                        <button type="button" id="next-month" class="btn btn-light">›</button>
+                                     </div>
+                                <div id="calendar" class="calendar-grid">
+                                    <div class="fw-bold">Sun</div><div class="fw-bold">Mon</div><div class="fw-bold">Tue</div><div class="fw-bold">Wed</div><div class="fw-bold">Thu</div><div class="fw-bold">Fri</div><div class="fw-bold">Sat</div>
+                                </div>
+                            </div>
 
                 <!-- Time Slots Section -->
-                <div class="col-md-5">
+                <div class="col-lg-5">
                     <h5 class="fw-bold mb-3">Available Time Slots</h5>
                     <div id="time-slots" class="time-slots-grid">
                         <p class="text-muted">Please select a date to see available times.</p>
@@ -41,7 +41,9 @@
             <button type="submit" class="btn btn-primary" id="next-btn" disabled>Next →</button>
         </div>
     </form>
-
+        </div>
+        </div>
+    </div>
 <style>
     .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.5rem; text-align: center; }
     .calendar-day { padding: 0.75rem 0.5rem; border-radius: 5%; cursor: pointer; }

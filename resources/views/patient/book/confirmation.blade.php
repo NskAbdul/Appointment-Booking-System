@@ -4,8 +4,8 @@
         <h2 class="h3 fw-bold">Appointment Booked!</h2>
         <p class="text-muted">Your appointment has been successfully scheduled.</p>
 
-        <div class="mt-4">
-            <a href="{{ route('patient.appointments.export.patient', session('last_booked_appointment_id')) }}" class="btn btn-success">
+         <div class="mt-4">
+            <a href="{{ route('patient.appointments.export.patient', ['appointment' => $appointmentId]) }}" class="btn btn-success">
                 Download Confirmation (PDF)
             </a>
             <a href="{{ route('patient.appointments.index') }}" class="btn btn-secondary">
