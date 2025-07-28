@@ -169,7 +169,7 @@ php artisan db:seed
 
 ### 6. Run the Vite Dev Server
 ```bash
-npm run dev
+npm run build
 ```
 
 ### 7. Start the Laravel Server
