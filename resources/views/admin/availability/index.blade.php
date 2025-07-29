@@ -137,8 +137,8 @@
     }
     </style>
 
-    @push('scripts')
-    <script>
+   @push('scripts')
+<script>
     document.addEventListener('DOMContentLoaded', function () {
         const calendarEl = document.getElementById('calendar');
         const monthYearEl = document.getElementById('current-month-year');
@@ -150,16 +150,14 @@
         currentDate.setDate(1);
 
         function renderCalendar() {
-            calendarEl.innerHTML = `
-                <div class="fw-bold small">Sun</div><div class="fw-bold small">Mon</div><div class="fw-bold small">Tue</div>
-                <div class="fw-bold small">Wed</div><div class="fw-bold small">Thu</div><div class="fw-bold small">Fri</div>
-                <div class="fw-bold small">Sat</div>`;
+            calendarEl.innerHTML = `<div class="fw-bold small">Sun</div><div class="fw-bold small">Mon</div><div class="fw-bold small">Tue</div><div class="fw-bold small">Wed</div><div class="fw-bold small">Thu</div><div class="fw-bold small">Fri</div><div class="fw-bold small">Sat</div>`;
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
             monthYearEl.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
             
             const firstDayOfMonth = new Date(year, month, 1).getDay();
             const daysInMonth = new Date(year, month + 1, 0).getDate();
+
             for (let i = 0; i < firstDayOfMonth; i++) {
                 const emptyDiv = document.createElement('div');
                 emptyDiv.classList.add('calendar-day', 'empty');
@@ -194,37 +192,33 @@
 
         async function loadScheduleForDate(dateStr) {
             scheduleTitle.textContent = `Schedule for ${dateStr}`;
-            scheduleContainer.innerHTML = '<div class="text-center text-muted">Loading...</div>';
-
+            scheduleContainer.innerHTML = '<div class="list-group-item p-5 text-center text-muted">Loading...</div>';
+            
             const response = await fetch(`{{ route('admin.availability.schedule', $doctor) }}?date=${dateStr}`);
             const schedule = await response.json();
-
+            
             scheduleContainer.innerHTML = '';
             if (schedule.length > 0) {
                 schedule.forEach(slot => {
-                    const time = new Date(`1970-01-01T${slot.time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                    const col = document.createElement('div');
-                    col.className = 'col-md-4';
+                   
+                    const time = new Date(`1970-01-01T${slot.time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                    const slotElement = document.createElement('div');
+                    slotElement.className = 'list-group-item d-flex justify-content-between align-items-center';
 
                     let actionButton = '';
                     if (slot.status === 'available') {
                         actionButton = `<button class="btn btn-sm btn-outline-danger block-btn" data-time="${dateStr}T${slot.time}">Block</button>`;
                     } else if (slot.status === 'unavailable') {
                         actionButton = `<button class="btn btn-sm btn-outline-success unblock-btn" data-time="${dateStr}T${slot.time}">Unblock</button>`;
-                    } else {
+                    } else { // booked
                         actionButton = `<span class="badge bg-secondary">Booked by Patient</span>`;
                     }
 
-                    col.innerHTML = `
-                        <div class="card time-slot-card">
-                            <div class="card-body d-flex justify-content-between align-items-center">
-                                <span>${time}</span> ${actionButton}
-                            </div>
-                        </div>`;
-                    scheduleContainer.appendChild(col);
+                    slotElement.innerHTML = `<span>${time}</span> ${actionButton}`;
+                    scheduleContainer.appendChild(slotElement);
                 });
             } else {
-                scheduleContainer.innerHTML = '<div class="text-center text-muted">No schedule for this day.</div>';
+                scheduleContainer.innerHTML = '<div class="list-group-item text-center text-muted">No schedule for this day.</div>';
             }
         }
 
@@ -233,8 +227,12 @@
             if (e.target.matches('.block-btn')) {
                 const start = new Date(timeToBlock);
                 const end = new Date(start.getTime() + 30 * 60000);
-                document.querySelector('[name="start_time"]').value = start.toISOString().slice(0, 16);
-                document.querySelector('[name="end_time"]').value = end.toISOString().slice(0, 16);
+                
+               
+                const formatForInput = (date) => new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+
+                document.getElementById('start_time').value = formatForInput(start);
+                document.getElementById('end_time').value = formatForInput(end);
                 new bootstrap.Modal(document.getElementById('addBlockModal')).show();
             }
             if (e.target.matches('.unblock-btn')) {
@@ -244,8 +242,8 @@
                         headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
                         body: JSON.stringify({ time_to_clear: timeToBlock })
                     }).then(response => {
-                        if(response.ok) loadScheduleForDate(timeToBlock.slice(0, 10));
-                        else alert('Could not unblock the time slot.');
+                        if(response.ok) { loadScheduleForDate(timeToBlock.slice(0, 10)); }
+                        else { alert('Could not unblock the time slot.'); }
                     });
                 }
             }
@@ -259,6 +257,6 @@
         loadScheduleForDate(todayStr);
         document.querySelector('.calendar-day.today')?.classList.add('selected');
     });
-    </script>
-    @endpush
+</script>
+@endpush
 </x-layouts.admin>

@@ -119,131 +119,126 @@
         }
     </style>
 
-    @push('scripts')
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const calendarEl = document.getElementById('calendar');
-            const monthYearEl = document.getElementById('current-month-year');
-            const prevBtn = document.getElementById('prev-month');
-            const nextBtn = document.getElementById('next-month');
-            const scheduleTitle = document.getElementById('schedule-title');
-            const scheduleContainer = document.getElementById('schedule-list-container');
-            let currentDate = new Date();
-            currentDate.setDate(1);
+   @push('scripts')
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const calendarEl = document.getElementById('calendar');
+    const monthYearEl = document.getElementById('current-month-year');
+    const prevBtn = document.getElementById('prev-month');
+    const nextBtn = document.getElementById('next-month');
+    const scheduleTitle = document.getElementById('schedule-title');
+    const scheduleContainer = document.getElementById('schedule-list-container');
+    let currentDate = new Date();
+    currentDate.setDate(1);
 
-            function renderCalendar() {
-                calendarEl.innerHTML = `<div class="fw-bold small">Sun</div><div class="fw-bold small">Mon</div><div class="fw-bold small">Tue</div><div class="fw-bold small">Wed</div><div class="fw-bold small">Thu</div><div class="fw-bold small">Fri</div><div class="fw-bold small">Sat</div>`;
-                const year = currentDate.getFullYear();
-                const month = currentDate.getMonth();
-                monthYearEl.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
-                const firstDayOfMonth = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
+    function renderCalendar() {
+        calendarEl.innerHTML = `<div class="fw-bold small">Sun</div><div class="fw-bold small">Mon</div><div class="fw-bold small">Tue</div><div class="fw-bold small">Wed</div><div class="fw-bold small">Thu</div><div class="fw-bold small">Fri</div><div class="fw-bold small">Sat</div>`;
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        monthYearEl.textContent = `${currentDate.toLocaleString('default', { month: 'long' })} ${year}`;
+        
+        const firstDayOfMonth = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-                for (let i = 0; i < firstDayOfMonth; i++) {
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.classList.add('calendar-day', 'empty');
-                    calendarEl.appendChild(emptyDiv);
+        for (let i = 0; i < firstDayOfMonth; i++) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.classList.add('calendar-day', 'empty');
+            calendarEl.appendChild(emptyDiv);
+        }
+        
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dayEl = document.createElement('div');
+            dayEl.classList.add('calendar-day');
+            dayEl.textContent = day;
+            const loopDate = new Date(year, month, day);
+
+            if (loopDate < today) {
+                dayEl.classList.add('disabled');
+            } else {
+                if (loopDate.toDateString() === today.toDateString()) {
+                    dayEl.classList.add('today');
                 }
-
-                const today = new Date();
-                today.setHours(0, 0, 0, 0);
-
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayEl = document.createElement('div');
-                    dayEl.classList.add('calendar-day');
-                    dayEl.textContent = day;
-                    const loopDate = new Date(year, month, day);
-
-                    if (loopDate < today) {
-                        dayEl.classList.add('disabled');
-                    } else {
-                        if (loopDate.toDateString() === today.toDateString()) {
-                            dayEl.classList.add('today');
-                        }
-                        dayEl.addEventListener('click', () => {
-                            document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
-                            dayEl.classList.add('selected');
-                            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                            loadScheduleForDate(dateStr);
-                        });
-                    }
-                    calendarEl.appendChild(dayEl);
-                }
+                dayEl.addEventListener('click', () => {
+                    document.querySelectorAll('.calendar-day.selected').forEach(d => d.classList.remove('selected'));
+                    dayEl.classList.add('selected');
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                    loadScheduleForDate(dateStr);
+                });
             }
+            calendarEl.appendChild(dayEl);
+        }
+    }
 
-            async function loadScheduleForDate(dateStr) {
-                scheduleTitle.textContent = `Schedule for ${dateStr}`;
-                scheduleContainer.innerHTML = '<div class="col text-center text-muted">Loading...</div>';
-                const response = await fetch(`{{ route('doctor.availability.schedule') }}?date=${dateStr}`);
-                const schedule = await response.json();
-                scheduleContainer.innerHTML = '';
-                if (schedule.length > 0) {
-                    schedule.forEach(slot => {
-                        const time = new Date(`1970-01-01T${slot.time}`).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                        const col = document.createElement('div');
-                        col.className = 'col';
-                        const card = document.createElement('div');
-                        card.className = 'card p-3 d-flex flex-row justify-content-between align-items-center';
-                        let actionButton = '';
-                        if (slot.status === 'available') {
-                            actionButton = `<button class="btn btn-sm btn-outline-danger block-btn" data-time="${dateStr}T${slot.time}">Block</button>`;
-                        } else if (slot.status === 'unavailable') {
-                            actionButton = `<button class="btn btn-sm btn-outline-success unblock-btn" data-time="${dateStr}T${slot.time}">Unblock</button>`;
-                        } else {
-                            actionButton = `<span class="badge bg-secondary">Booked by Patient</span>`;
-                        }
-                        card.innerHTML = `<span>${time}</span>${actionButton}`;
-                        col.appendChild(card);
-                        scheduleContainer.appendChild(col);
-                    });
-                } else {
-                    scheduleContainer.innerHTML = '<div class="col text-center text-muted">No schedule for this day.</div>';
+    async function loadScheduleForDate(dateStr) {
+        scheduleTitle.textContent = `Schedule for ${dateStr}`;
+        scheduleContainer.innerHTML = '<div class="list-group-item p-5 text-center text-muted">Loading...</div>';
+        
+        const response = await fetch(`{{ route('doctor.availability.schedule') }}?date=${dateStr}`);
+        const schedule = await response.json();
+        
+        scheduleContainer.innerHTML = '';
+        if (schedule.length > 0) {
+            schedule.forEach(slot => {
+               
+                const time = new Date(`1970-01-01T${slot.time}`).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
+                const slotElement = document.createElement('div');
+                slotElement.className = 'list-group-item d-flex justify-content-between align-items-center';
+
+                let actionButton = '';
+                if (slot.status === 'available') {
+                    actionButton = `<button class="btn btn-sm btn-outline-danger block-btn" data-time="${dateStr}T${slot.time}">Block</button>`;
+                } else if (slot.status === 'unavailable') {
+                    actionButton = `<button class="btn btn-sm btn-outline-success unblock-btn" data-time="${dateStr}T${slot.time}">Unblock</button>`;
+                } else { // booked
+                    actionButton = `<span class="badge bg-secondary">Booked by Patient</span>`;
                 }
+
+                slotElement.innerHTML = `<span>${time}</span> ${actionButton}`;
+                scheduleContainer.appendChild(slotElement);
+            });
+        } else {
+            scheduleContainer.innerHTML = '<div class="list-group-item text-center text-muted">No schedule for this day.</div>';
+        }
+    }
+
+    scheduleContainer.addEventListener('click', function(e) {
+        const timeToBlock = e.target.dataset.time;
+        if (e.target.matches('.block-btn')) {
+            const start = new Date(timeToBlock);
+            const end = new Date(start.getTime() + 30 * 60000);
+            
+           
+            const formatForInput = (date) => new Date(date.getTime() - (date.getTimezoneOffset() * 60000)).toISOString().slice(0, 16);
+
+            document.getElementById('start_time').value = formatForInput(start);
+            document.getElementById('end_time').value = formatForInput(end);
+            new bootstrap.Modal(document.getElementById('addBlockModal')).show();
+        }
+        if (e.target.matches('.unblock-btn')) {
+            if (confirm('Are you sure you want to make this time slot available?')) {
+                fetch('{{ route("doctor.availability.destroy") }}', {
+                    method: 'DELETE',
+                    headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+                    body: JSON.stringify({ time_to_clear: timeToBlock })
+                }).then(response => {
+                    if(response.ok) { loadScheduleForDate(timeToBlock.slice(0, 10)); }
+                    else { alert('Could not unblock the time slot.'); }
+                });
             }
+        }
+    });
 
-            scheduleContainer.addEventListener('click', function (e) {
-                const timeToBlock = e.target.dataset.time;
-                if (e.target.matches('.block-btn')) {
-                    const start = new Date(timeToBlock);
-                    const end = new Date(start.getTime() + 30 * 60000);
-                    document.getElementById('start_time').value = start.toISOString().slice(0, 16);
-                    document.getElementById('end_time').value = end.toISOString().slice(0, 16);
-                    new bootstrap.Modal(document.getElementById('addBlockModal')).show();
-                }
-                if (e.target.matches('.unblock-btn')) {
-                    if (confirm('Are you sure you want to make this time slot available?')) {
-                        fetch('{{ route("doctor.availability.destroy") }}', {
-                            method: 'DELETE',
-                            headers: {
-                                'Content-Type': 'application/json',
-                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                            },
-                            body: JSON.stringify({ time_to_clear: timeToBlock })
-                        }).then(response => {
-                            if (response.ok) {
-                                loadScheduleForDate(timeToBlock.slice(0, 10));
-                            } else {
-                                alert('Could not unblock the time slot.');
-                            }
-                        });
-                    }
-                }
-            });
+    prevBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() - 1); renderCalendar(); });
+    nextBtn.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth() + 1); renderCalendar(); });
 
-            prevBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-                renderCalendar();
-            });
-            nextBtn.addEventListener('click', () => {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-                renderCalendar();
-            });
-
-            renderCalendar();
-            const todayStr = new Date().toISOString().slice(0, 10);
-            loadScheduleForDate(todayStr);
-            document.querySelector('.calendar-day.today')?.classList.add('selected');
-        });
-    </script>
-    @endpush
+    renderCalendar();
+    const todayStr = new Date().toISOString().slice(0, 10);
+    loadScheduleForDate(todayStr);
+    document.querySelector('.calendar-day.today')?.classList.add('selected');
+});
+</script>
+@endpush
 </x-layouts.doctor>
