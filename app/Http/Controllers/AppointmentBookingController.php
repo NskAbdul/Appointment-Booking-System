@@ -5,6 +5,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Appointment;
 use Carbon\Carbon;
+use App\Models\Unavailability;
 
 class AppointmentBookingController extends Controller
 {
@@ -130,25 +131,43 @@ public function store(Request $request)
 public function getAvailableSlots(Request $request, User $doctor)
 {
     $request->validate(['date' => 'required|date_format:Y-m-d']);
-    $date = \Carbon\Carbon::parse($request->date);
+    $date = Carbon::parse($request->date);
 
-    // Define the doctor's full working schedule
+    // 1. Generate all possible time slots for a standard workday
     $startTime = $date->copy()->setHour(9);
-    $endTime = $date->copy()->setHour(17);
+    $endTime = $date->copy()->setHour(23);
     $allSlots = [];
     while ($startTime < $endTime) {
         $allSlots[] = $startTime->format('H:i');
         $startTime->addMinutes(30);
     }
 
-    // Get all appointments already booked
-    $bookedSlots = \App\Models\Appointment::where('doctor_id', $doctor->id)
+    // 2. Get all appointments already booked for this doctor on this day
+    $bookedSlots = Appointment::where('doctor_id', $doctor->id)
         ->whereDate('appointment_date', $date)
         ->where('status', '!=', 'cancelled')
-        ->get()->pluck('appointment_date')->map(fn($dt) => \Carbon\Carbon::parse($dt)->format('H:i'))->toArray();
+        ->get()->pluck('appointment_date')->map(fn($dt) => Carbon::parse($dt)->format('H:i'))->toArray();
 
-    // Find what's available
-    $availableSlots = array_diff($allSlots, $bookedSlots);
+    // 3. NEW: Get all unavailable time blocks for this doctor on this day
+    $unavailabilities = Unavailability::where('doctor_id', $doctor->id)
+        ->where('start_time', '<=', $date->copy()->endOfDay())
+        ->where('end_time', '>=', $date->copy()->startOfDay())
+        ->get();
+
+    $unavailableSlots = [];
+    foreach ($unavailabilities as $unavailability) {
+        $start = Carbon::parse($unavailability->start_time);
+        $end = Carbon::parse($unavailability->end_time);
+        // Generate all 30-minute slots covered by this unavailability block
+        while ($start < $end) {
+            $unavailableSlots[] = $start->format('H:i');
+            $start->addMinutes(30);
+        }
+    }
+
+    // 4. Combine booked and unavailable slots, then find the difference
+    $blockedSlots = array_unique(array_merge($bookedSlots, $unavailableSlots));
+    $availableSlots = array_diff($allSlots, $blockedSlots);
 
     return response()->json(array_values($availableSlots));
 }

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Appointment;
 use App\Models\User;
 use Carbon\Carbon;
+use App\Models\Unavailability;
 
 class AdminAppointmentController extends Controller
 {
@@ -92,29 +93,48 @@ class AdminAppointmentController extends Controller
         $doctorId = $request->doctor_id;
         $appointmentId = $request->appointment_id;
 
+        // 1. Generate all possible time slots
         $startTime = $date->copy()->setHour(9);
-        $endTime = $date->copy()->setHour(17);
+        $endTime = $date->copy()->setHour(23);
         $allSlots = [];
         while ($startTime < $endTime) {
             $allSlots[] = $startTime->format('H:i');
             $startTime->addMinutes(30);
         }
 
+        // 2. Get all booked appointments
         $bookedSlotsQuery = Appointment::where('doctor_id', $doctorId)
             ->whereDate('appointment_date', $date)
             ->where('status', '!=', 'cancelled');
-
         if ($appointmentId) {
             $bookedSlotsQuery->where('id', '!=', $appointmentId);
         }
-
         $bookedSlots = $bookedSlotsQuery->get()->pluck('appointment_date')->map(fn($dt) => Carbon::parse($dt)->format('H:i'))->toArray();
-        $availableSlots = array_diff($allSlots, $bookedSlots);
 
-        return response()->json(array_values($availableSlots));
+    // 3.Get all unavailable time blocks
+    $unavailabilities = Unavailability::where('doctor_id', $doctorId)
+        ->where('start_time', '<=', $date->copy()->endOfDay())
+        ->where('end_time', '>=', $date->copy()->startOfDay())
+        ->get();
+
+    $unavailableSlots = [];
+    foreach ($unavailabilities as $unavailability) {
+        $start = Carbon::parse($unavailability->start_time);
+        $end = Carbon::parse($unavailability->end_time);
+        while ($start < $end) {
+            $unavailableSlots[] = $start->format('H:i');
+            $start->addMinutes(30);
+        }
     }
 
-    // In AdminAppointmentController.php
+    // 4. Combine and find available slots
+    $blockedSlots = array_unique(array_merge($bookedSlots, $unavailableSlots));
+    $availableSlots = array_diff($allSlots, $blockedSlots);
+
+    return response()->json(array_values($availableSlots));
+}
+
+   
 
 public function edit(Appointment $appointment)
 {
@@ -127,7 +147,7 @@ public function history(Request $request)
                 ->whereIn('status', ['completed', 'cancelled']) // <-- Fetches past appointments
                 ->orderBy('appointment_date', 'desc');
 
-    // ... (You can add the same filtering logic here if needed) ...
+   
 
     $appointments = $query->paginate(10);
 

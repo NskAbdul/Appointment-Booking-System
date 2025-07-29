@@ -18,6 +18,8 @@ use App\Http\Controllers\AdminAppointmentController;
 use App\Http\Controllers\AdminProfileController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\ExportController;
+use App\Http\Controllers\AvailabilityController;
+use App\Http\Controllers\AdminAvailabilityController;
 
 /*
 |--------------------------------------------------------------------------
@@ -95,6 +97,10 @@ Route::get('/api/doctors/{doctor}/available-slots', [AppointmentBookingControlle
         Route::put('/password', [DoctorProfileController::class, 'updatePassword'])->name('password.update');
         Route::get('/schedule/export-pdf', [ExportController::class, 'exportDoctorSchedule'])->name('schedule.export.doctor');
         Route::get('/history/export-pdf', [ExportController::class, 'exportDoctorHistory'])->name('history.export.doctor');
+        Route::get('/availability', [AvailabilityController::class, 'index'])->name('availability.index');
+        Route::get('/availability/schedule', [AvailabilityController::class, 'getDailySchedule'])->name('availability.schedule');
+        Route::post('/availability', [AvailabilityController::class, 'store'])->name('availability.store');
+        Route::delete('/availability', [AvailabilityController::class, 'destroy'])->name('availability.destroy');
     });
 
     // --- ADMIN-ONLY ROUTES ---
@@ -113,6 +119,10 @@ Route::get('/api/doctors/{doctor}/available-slots', [AppointmentBookingControlle
         Route::patch('/profile', [AdminProfileController::class, 'update'])->name('profile.update');
         Route::get('/schedule/export-pdf', [ExportController::class, 'exportAdminSchedule'])->name('schedule.export.admin');
         Route::get('/history/export-pdf', [ExportController::class, 'exportAdminHistory'])->name('history.export.admin');
+        Route::get('/doctors/{doctor}/availability', [AdminAvailabilityController::class, 'index'])->name('availability.index');
+        Route::get('/doctors/{doctor}/availability/schedule', [AdminAvailabilityController::class, 'getDailySchedule'])->name('availability.schedule');
+        Route::post('/doctors/{doctor}/availability', [AdminAvailabilityController::class, 'store'])->name('availability.store');
+        Route::delete('/doctors/{doctor}/availability', [AdminAvailabilityController::class, 'destroy'])->name('availability.destroy');
     });
 
     // --- STAFF ROUTER (Redirects after login) ---

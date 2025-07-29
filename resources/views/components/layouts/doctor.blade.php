@@ -41,6 +41,7 @@
        <nav>
     <a href="{{ route('doctor.dashboard') }}" class="sidebar-link {{ request()->routeIs('doctor.dashboard') ? 'active' : '' }}">Dashboard</a>
     <a href="{{ route('doctor.appointments.index') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.index') ? 'active' : '' }}">My Appointments</a>
+    <a href="{{ route('doctor.availability.index') }}" class="sidebar-link {{ request()->routeIs('doctor.availability.index') ? 'active' : '' }}">Manage Availability</a>
     <a href="{{ route('doctor.appointments.history') }}" class="sidebar-link {{ request()->routeIs('doctor.appointments.history') ? 'active' : '' }}">Appointment History</a>
     <a href="{{ route('doctor.profile.edit') }}" class="sidebar-link {{ request()->routeIs('doctor.profile.edit') ? 'active' : '' }}">My Profile</a>
     <hr>

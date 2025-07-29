@@ -105,6 +105,11 @@ This web application is designed to streamline the hospital appointment process.
 
   ---
 
+  - ### Doctor Timeslot availability Management
+  ![Doctor Timeslot availability Management](screenshots/manage-timeslot-availability.png)
+
+  ---
+
 - ### Doctor Appointment History
   ![Doctor Appointment History](screenshots/doctor-appointment-history.png)
 

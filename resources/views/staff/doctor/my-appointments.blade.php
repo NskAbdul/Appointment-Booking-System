@@ -38,9 +38,11 @@
         </form>
     </div>
 
-    @if (session('status'))
-        <div class="alert alert-success">{{ session('status') }}</div>
-    @endif
+     <div x-data="{ show: true }" x-show="show" x-init="setTimeout(() => show = false, 2000)" x-cloak>
+        @if (session('status'))
+            <div class="alert alert-success">{{ session('status') }}</div>
+        @endif
+    </div>
 
     <!-- Appointments List -->
     <h3 class="h5 fw-bold mb-3">Appointments ({{ $appointments->count() }})</h3>
